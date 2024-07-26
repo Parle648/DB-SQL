@@ -71,3 +71,100 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+```mermaid
+erDiagram
+    USERS {
+        Int id PK "SERIAL NOT NULL"
+        String username "VARCHAR(15) NOT NULL UNIQUE"
+        String first_name "VARCHAR(15) NOT NULL"
+        String last_name "VARCHAR(15) NOT NULL"
+        String email "VARCHAR(320) NOT NULL UNIQUE"
+        String password "TEXT NOT NULL"
+        DateTime created_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        DateTime updated_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        Int avatar_id "INTEGER NOT NULL UNIQUE"
+    }
+    FILES {
+        Int id PK "SERIAL NOT NULL"
+        String file_name "VARCHAR(15) NOT NULL"
+        MIME mime_type "MIME NOT NULL"
+        String key "TEXT NOT NULL"
+        String url "TEXT NOT NULL"
+        DateTime created_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        DateTime updated_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+    }
+    MOVIES {
+        Int id PK "SERIAL NOT NULL"
+        String title "VARCHAR(20) NOT NULL UNIQUE"
+        String description "TEXT NOT NULL"
+        Int budget "INTEGER NOT NULL"
+        DateTime release_date "TIMESTAMP(3) NOT NULL"
+        Int duration "INTEGER NOT NULL"
+        DateTime created_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        DateTime updated_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        Int director_id "INTEGER NOT NULL UNIQUE"
+        Int genre_id "INTEGER NOT NULL"
+    }
+    MOVIE_GENRES {
+        Int movie_id PK "INTEGER NOT NULL"
+        Int genre_id PK "INTEGER NOT NULL"
+    }
+    GENRES {
+        Int id PK "SERIAL NOT NULL"
+        String genre "VARCHAR(15) NOT NULL"
+        DateTime created_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        DateTime updated_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+    }
+    DIRECTORS {
+        Int id PK "SERIAL NOT NULL"
+        String name "VARCHAR(15) NOT NULL"
+        String surname "VARCHAR(15) NOT NULL"
+        DateTime created_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        DateTime updated_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        Int file_id "INTEGER NOT NULL UNIQUE"
+    }
+    CHARACTERS {
+        Int id PK "SERIAL NOT NULL"
+        String name "VARCHAR(15) NOT NULL"
+        String description "TEXT NOT NULL"
+        Role role "Role NOT NULL"
+        DateTime created_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        DateTime updated_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        Int person_id "INTEGER NOT NULL UNIQUE"
+        Int file_id "INTEGER NOT NULL UNIQUE"
+    }
+    MOVIES_CHARACTERS {
+        Int movie_id PK "INTEGER NOT NULL"
+        Int character_id PK "INTEGER NOT NULL"
+    }
+    PERSONS {
+        Int id PK "SERIAL NOT NULL"
+        String first_name "VARCHAR(15) NOT NULL"
+        String last_name "VARCHAR(15) NOT NULL"
+        String biography "TEXT NOT NULL"
+        DateTime date_of_birth "TIMESTAMP(3) NOT NULL"
+        Gender gender "Gender NOT NULL"
+        DateTime created_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        DateTime updated_at "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        Int file_id "INTEGER NOT NULL UNIQUE"
+    }
+
+    USERS ||--o{ FILES : "avatar_id"
+    FILES ||--o| USERS : "users"
+    FILES ||--o| CHARACTERS : "characters"
+    FILES ||--o| DIRECTORS : "directors"
+    FILES ||--o| PERSONS : "persons"
+    MOVIES ||--o| DIRECTORS : "director_id"
+    MOVIES ||--o| GENRES : "genre_id"
+    MOVIES ||--|{ MOVIES_CHARACTERS : "movies_characters"
+    MOVIES ||--|{ MOVIE_GENRES : "movie_genres"
+    GENRES ||--|{ MOVIE_GENRES : "movie_genres"
+    DIRECTORS ||--o| FILES : "file_id"
+    DIRECTORS ||--|{ MOVIES : "movie"
+    CHARACTERS ||--o| PERSONS : "person_id"
+    CHARACTERS ||--o| FILES : "file_id"
+    CHARACTERS ||--|{ MOVIES_CHARACTERS : "movies_characters"
+    PERSONS ||--o| FILES : "file_id"
+    PERSONS ||--o| CHARACTERS : "character"
+```
