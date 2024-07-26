@@ -12,3 +12,219 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum MIME {
+  image_jpeg
+  image_png
+  image_gif
+  image_webp
+  image_svg_xml
+}
+
+enum Role {
+  main
+  second
+  background
+}
+
+enum Gender {
+  male
+  female
+}
+
+model users {
+  id Int @id @unique @default(autoincrement())
+  username String @unique @db.VarChar(15)
+  first_name String @db.VarChar(15)
+  last_name String @db.VarChar(15)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  account_data account_data @relation(fields: [account_data_id], references: [id])
+  account_data_id Int @unique
+
+  avatar files @relation(fields: [avatar_id], references: [id])
+  avatar_id Int @unique
+}
+
+model account_data {
+  id Int @id @unique @default(autoincrement())
+  email String @unique @db.VarChar(320)
+  password String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  user users?
+}
+
+model files {
+  id Int @id @unique @default(autoincrement())
+  file_name String @db.VarChar(15)
+  mime_type MIME
+  key String
+  url String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  users users?
+  characters character_photos[]
+  directors director_photos[]
+  persons person_photos[]
+}
+
+model movies {
+  id Int @id @unique @default(autoincrement())
+  title String @unique @db.VarChar(20)
+  description String
+  budget Int
+  release_date DateTime
+  duration Int
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  director directors @relation(fields: [director_id], references: [id])
+  director_id Int @unique
+
+  genres_reference movies_by_genres[]
+  movies_characters movies_characters[]
+
+  produced_country produced_counrty @relation(fields: [produced_country_id], references: [id])
+  produced_country_id Int @unique
+}
+
+model genres {
+  id Int @id @unique @default(autoincrement())
+  genre String @db.VarChar(15)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  genres_reference movies_by_genres[]
+}
+
+model movies_by_genres {
+  id Int @id @unique @default(autoincrement())
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  
+  movie movies @relation(fields: [movie_id], references: [id])
+  movie_id Int
+
+  genre genres @relation(fields: [genre_id], references: [id])
+  genre_id Int
+}
+
+model directors {
+  id Int @id @unique @default(autoincrement())
+  name String @db.VarChar(15)
+  surname String @db.VarChar(15)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  movie movies?
+  photos director_photos[]
+}
+
+model director_photos {
+  file files @relation(fields: [file_id], references: [id])
+  file_id Int @unique
+  director directors @relation(fields: [director_id], references: [id])
+  director_id Int @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  @@id([file_id, director_id])
+}
+
+model characters {
+  id Int @id @unique @default(autoincrement())
+  name String @db.VarChar(15)
+  description String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  role roles @relation(fields: [role_id], references: [id])
+  role_id Int @unique
+  
+  person persons @relation(fields: [person_id], references: [id])
+  person_id Int @unique
+  
+  movies_characters movies_characters[]
+  photos character_photos[]
+}
+
+model character_photos {
+  file files @relation(fields: [file_id], references: [id])
+  file_id Int @unique
+  character characters @relation(fields: [character_id], references: [id])
+  character_id Int @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  @@id([file_id, character_id])
+}
+
+model movies_characters {
+  movie movies @relation(fields: [movie_id], references: [id])
+  movie_id Int
+  character characters @relation(fields: [character_id], references: [id])
+  character_id Int
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  @@id([movie_id, character_id])
+}
+
+model persons {
+  id Int @id @unique @default(autoincrement())
+  first_name String @db.VarChar(15)
+  last_name String @db.VarChar(15)
+  biography String
+  date_of_birth DateTime
+  gender Gender
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  country person_country @relation(fields: [country_id], references: [id])
+  country_id Int @unique
+
+  character characters?
+  photos person_photos[]
+}
+
+model person_photos {
+  file files @relation(fields: [file_id], references: [id])
+  file_id Int @unique
+  person persons @relation(fields: [person_id], references: [id])
+  person_id Int @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  @@id([file_id, person_id])
+}
+
+model produced_counrty {
+  id Int @id @unique @default(autoincrement())
+  country_name String @db.VarChar(15)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  movies movies?
+}
+
+model roles {
+  id Int @id @unique @default(autoincrement())
+  role Role
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  character characters?
+}
+
+model person_country {
+  id Int @id @unique @default(autoincrement())
+  country_name String @db.VarChar(15)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  person persons?
+}
